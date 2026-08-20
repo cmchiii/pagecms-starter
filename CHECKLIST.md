@@ -90,7 +90,34 @@ signal the loader should be switched to a native `import` and the plugin deleted
       `colors.highlight` field with no schema entry, only caught because the CSS var appears
       dozens of times but the schema field doesn't exist).
 
-## 7. Sanity pass
+## 7. Content organization — the client can actually find a page
+A dealer template's `pages` collection routinely holds 80+ files nested several folders
+deep (`commercial/backflow-prevention/device-installation.json`). If the CMS just lists
+them flat, or the tree/filter views that are *supposed* to group them aren't wired
+correctly, a client can't find anything — this is a UX bug, not a schema bug, so it's
+easy to skip past.
+- [ ] Confirm the `pages` collection has `subfolders: true` set. Without it, Pages CMS may not
+      discover files nested inside subdirectories at all — not just fail to group them nicely.
+- [ ] Confirm `view.layout: tree` (plus `view.node.filename`/`hideDirs` if the template uses
+      per-folder `index.json` landing pages) so the sidebar mirrors the actual folder structure
+      instead of one long flat list.
+- [ ] For any secondary "quick find" filtered collection (this starter ships `location-pages`,
+      filtering on `meta.isLocationPage == true` — adapt the flag/filter for whatever grouping a
+      given template needs, e.g. seasonal promos, a specific service line): **the filter field
+      must actually be true on the pages it's supposed to surface.** A schema-only filter with no
+      data behind it returns zero results — no error, the group just looks empty forever.
+      **Found in plumbing-template-1: `location-pages` filtered on `meta.isLocationPage`, but
+      none of the three actual location pages (santa-monica/pasadena/glendale) had that key set —
+      the quick-find list was silently empty.** Grep the target pages' JSON for the filter field
+      before trusting a filtered collection is populated.
+- [ ] If a filtered collection shares its `path` with the main collection (so it reads the same
+      files rather than a duplicate empty one), `settings.content.merge: true` must be set at the
+      YAML root, or Pages CMS won't merge the two collections' schemas correctly.
+- [ ] Make the filter field itself CMS-editable (a `boolean` field on `meta`, in this case) —
+      otherwise the only way to add a page to the group is hand-editing JSON outside the CMS,
+      which defeats the point of giving the client a findable, click-to-toggle grouping.
+
+## 8. Sanity pass
 - [ ] `.pages.yml` passes Pages CMS's own validation (open the repo in the Pages CMS app, or run
       their schema validator if available) before considering the template done.
 - [ ] Run a full **production build** (`npm run build`), not just the dev server. The §4 bug class
