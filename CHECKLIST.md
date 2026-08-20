@@ -93,31 +93,53 @@ signal the loader should be switched to a native `import` and the plugin deleted
 ## 7. Content organization — the client can actually find a page
 A dealer template's `pages` collection routinely holds 80+ files nested several folders
 deep (`commercial/backflow-prevention/device-installation.json`). If the CMS just lists
-them flat, or the tree/filter views that are *supposed* to group them aren't wired
-correctly, a client can't find anything — this is a UX bug, not a schema bug, so it's
+them flat, a client can't find anything — this is a UX bug, not a schema bug, so it's
 easy to skip past.
 - [ ] Confirm the `pages` collection has `subfolders: true` set. Without it, Pages CMS may not
       discover files nested inside subdirectories at all — not just fail to group them nicely.
 - [ ] Confirm `view.layout: tree` (plus `view.node.filename`/`hideDirs` if the template uses
       per-folder `index.json` landing pages) so the sidebar mirrors the actual folder structure
       instead of one long flat list.
-- [ ] For any secondary "quick find" filtered collection (this starter ships `location-pages`,
-      filtering on `meta.isLocationPage == true` — adapt the flag/filter for whatever grouping a
-      given template needs, e.g. seasonal promos, a specific service line): **the filter field
-      must actually be true on the pages it's supposed to surface.** A schema-only filter with no
-      data behind it returns zero results — no error, the group just looks empty forever.
-      **Found in plumbing-template-1: `location-pages` filtered on `meta.isLocationPage`, but
-      none of the three actual location pages (santa-monica/pasadena/glendale) had that key set —
-      the quick-find list was silently empty.** Grep the target pages' JSON for the filter field
-      before trusting a filtered collection is populated.
-- [ ] If a filtered collection shares its `path` with the main collection (so it reads the same
-      files rather than a duplicate empty one), `settings.content.merge: true` must be set at the
-      YAML root, or Pages CMS won't merge the two collections' schemas correctly.
-- [ ] Make the filter field itself CMS-editable (a `boolean` field on `meta`, in this case) —
-      otherwise the only way to add a page to the group is hand-editing JSON outside the CMS,
-      which defeats the point of giving the client a findable, click-to-toggle grouping.
+- [ ] Confirm `view.primary: meta.title` (or equivalent) so list rows show a human-readable
+      title instead of the raw filename — a non-technical client can't tell `santa-monica.json`
+      from `glendale.json` at a glance, but "Santa Monica Plumbing Services" they can.
+- [ ] **There is no supported way to show a filtered/curated subset of a collection** (e.g. "just
+      the location pages," "just this quarter's promos") — Pages CMS's `view:` schema only
+      supports `layout`, `node`, `fields`, `primary`, `sort`, `search`, `default`; there is no
+      `filter` key. A previous version of this starter shipped a `location-pages` collection with
+      a `view.filter` block — it never worked. Because `view:` is strictly validated, the invalid
+      `filter` key silently invalidated the *entire* `view:` block for that collection, which is
+      why it fell back to an unstyled flat list of every file with raw filenames as labels — the
+      exact "why does this look broken" symptom this section exists to prevent, caused by this
+      starter itself. If a template genuinely needs a curated subset view, the only real option is
+      physically nesting those files under their own subfolder so the tree groups them — which
+      means their URLs change too if routing is path-based (see the next bullet).
+- [ ] Before moving any page into a new subfolder for grouping, check whether the site's routing
+      is path-based (the file's path *is* the URL, e.g. Astro's `getCollection` + `page.id` as the
+      slug) or uses an independent `slug` field. Path-based routing means a folder move changes
+      the live URL — confirm with whoever owns SEO/backlinks before doing it, and update every
+      hardcoded link to the old URL (nav config, inline body links) to match.
 
-## 8. Sanity pass
+## 8. Don't trust unverified keys already in a `.pages.yml` — including this starter's
+A key can sit in a working-looking config for a long time without anyone noticing it does
+nothing, because Pages CMS degrades a single invalid block instead of crashing the whole app —
+so "the CMS didn't show an error" is not evidence a key is real (see §7's `filter` example, which
+originated in this starter and was propagated across two templates before anyone checked it
+against the actual source).
+- [ ] Before relying on any config key that isn't obviously standard (used in an official example,
+      or already proven via a successful edit-and-see-it-render round trip per §0), verify it
+      against Pages CMS's real schema: `lib/config-schema.ts` in `hunvreus/pagescms` on GitHub (the
+      Zod schema is authoritative and mostly `.strict()`, so anything not listed there is silently
+      dropped, not applied) and/or the matching page under https://pagescms.org/docs/configuration/.
+      Don't infer a key is valid because it "looks like" one from another CMS (Netlify CMS, Sanity,
+      etc.) or because it appears elsewhere in the same file — `icon:` on a collection/file/field
+      was never valid either and shipped throughout the original config for the same reason.
+- [ ] When copying a pattern from an existing `.pages.yml` (this starter included) into a new
+      template, don't assume it works just because it's already there — re-verify it the same way,
+      especially anything that isn't obviously exercised by a passing build (a `props: object`
+      field gets exercised the moment a component reads it; a `view:` display quirk does not).
+
+## 9. Sanity pass
 - [ ] `.pages.yml` passes Pages CMS's own validation (open the repo in the Pages CMS app, or run
       their schema validator if available) before considering the template done.
 - [ ] Run a full **production build** (`npm run build`), not just the dev server. The §4 bug class
