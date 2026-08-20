@@ -6,6 +6,15 @@ the target repo itself (the other workspace folder that isn't `pagecms-starter` 
 like an Astro dealer template — has `astro.config.mjs` and `src/content.config.ts`; if more
 than one match, it should ask which one before doing anything).
 
+## One-line, fully automatic
+
+Just this — Claude reads this file and runs the whole "first run" flow below without
+pausing for plan approval, then reports what it did:
+
+> Read `pagecms-starter/PROMPT.md` and fully execute the "First run on a new template"
+> prompt against the dealer-template repo in this workspace — don't stop for plan approval,
+> just do it and report back when done.
+
 ## First run on a new template
 
 > Find the dealer-template repo in this workspace (not `pagecms-starter` itself — the other
