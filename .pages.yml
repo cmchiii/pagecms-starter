@@ -1,0 +1,95 @@
+# Pages CMS starter config — dealer-template pattern
+#
+# This mirrors the Astro content-collection shape used across dealer templates:
+#   src/content/pages/**/*.json → { meta: {...}, sections: [{ component, props }], noindex, draft }
+#
+# Verified against pages-cms/pages-cms source (types/field.ts, lib/config-schema.ts) — not guessed.
+# Copy this file to the target template repo root as `.pages.yml`, then:
+#   1. Add every section component the template actually uses to `components:` below.
+#   2. Point `content[0].path` at that repo's `src/content/pages` (should already match).
+#   3. Run through CHECKLIST.md before wiring up the GitHub App.
+
+media:
+  input: public/images
+  output: /images
+
+# Shared block definitions, referenced by name from the page collection's
+# `sections` block field via `component: <name>`. One entry per Astro section
+# component in src/components/sections/*.astro — keep this list in lockstep
+# with the component's actual props (see CHECKLIST.md, "prop <-> schema parity").
+components:
+  - name: HeroSection
+    label: Hero Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: buttonText, type: string }
+          - { name: buttonHref, type: string }
+          - name: slides
+            type: object
+            list: true
+            fields:
+              - { name: title, type: string }
+              - { name: subtitle, type: text }
+              - { name: image, type: image }
+              - { name: promoTitle, type: string, required: false }
+              - { name: promoText, type: string, required: false }
+              - { name: promoImage, type: image, required: false }
+
+  # - name: CTAStrip
+  #   label: CTA Strip
+  #   fields:
+  #     - name: props
+  #       type: object
+  #       fields: []   # fill in from CTAStrip.astro's Props type
+
+  # ... one block per component in src/components/sections/ ...
+
+content:
+  - name: pages
+    label: Pages
+    type: collection
+    path: src/content/pages
+    view:
+      layout: tree
+    fields:
+      - name: meta
+        type: object
+        fields:
+          - { name: title, type: string }
+          - { name: description, type: text }
+          - { name: keywords, type: string, required: false }
+          - { name: ogImage, type: image, required: false }
+      - name: sections
+        type: block
+        blockKey: component
+        list: true
+        blocks:
+          - { component: HeroSection }
+          # - { component: CTAStrip }
+          # ... one line per entry in `components:` above ...
+      - { name: noindex, type: boolean, default: false }
+      - { name: draft, type: boolean, default: false }
+
+  - name: site-settings
+    label: Site Settings
+    type: file
+    path: src/data/settings/site.json
+    fields:
+      - name: business
+        type: object
+        fields:
+          - { name: name, type: string }
+          - { name: fullName, type: string }
+      - name: location
+        type: object
+        fields:
+          - { name: city, type: string }
+          - { name: state, type: string }
+      - name: contact
+        type: object
+        fields:
+          - { name: phoneFormatted, type: string }
+          - { name: phoneRaw, type: string, required: false }
+      # extend to match this template's actual site.json shape (Phase 1 audit)
