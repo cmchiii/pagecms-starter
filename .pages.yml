@@ -75,7 +75,7 @@ components:
                 type: select
                 options:
                   values: [siren, award, phone, clock, shield, wrench]
-              - { name: text, type: string }
+              - { name: title, type: string }
 
   - name: ContactFormSection
     label: Contact Form Section
@@ -101,7 +101,13 @@ components:
           - { name: badge, type: string, required: false }
           - { name: title, type: string }
           - { name: description, type: text }
-          - { name: features, type: string, list: true, required: false }
+          - name: features
+            type: object
+            list: true
+            required: false
+            fields:
+              - { name: icon, type: string, required: false }
+              - { name: title, type: string }
           - { name: buttonText, type: string, required: false }
           - { name: buttonHref, type: string, required: false }
           - name: imagePosition
@@ -152,6 +158,9 @@ components:
             required: false
             options:
               values: [default, minimal]
+          - { name: badge, type: string, required: false }
+          - { name: title, type: string, required: false }
+          - { name: subtitle, type: text, required: false }
           - name: coupons
             type: object
             list: true
@@ -207,7 +216,7 @@ components:
         fields:
           - { name: title, type: string }
           - { name: description, type: text, required: false }
-          - name: services
+          - name: items
             type: object
             list: true
             fields:
@@ -348,8 +357,11 @@ components:
           - { name: badge, type: string, required: false }
           - { name: title, type: string }
           - { name: description, type: text }
+          - { name: paymentPlansTitle, type: string, required: false }
           - { name: paymentPlans, type: string, list: true }
+          - { name: financingOptionsTitle, type: string, required: false }
           - { name: financingOptions, type: string, list: true }
+          - { name: stepsTitle, type: string, required: false }
           - name: steps
             type: object
             list: true
@@ -387,7 +399,7 @@ components:
             list: true
             fields:
               - { name: title, type: string }
-              - { name: text, type: text, required: false }
+              - { name: description, type: text, required: false }
               - { name: href, type: string, required: false }
               - name: icon
                 type: select
@@ -429,12 +441,14 @@ components:
           - { name: description, type: text }
           - { name: buttonText, type: string, required: false }
           - { name: buttonHref, type: string, required: false }
+          - { name: includedItemsTitle, type: string, required: false }
           - name: includedItems
             type: object
             list: true
             fields:
               - { name: title, type: string }
               - { name: description, type: text }
+          - { name: benefitsTitle, type: string, required: false }
           - { name: benefits, type: string, list: true }
 
   - name: PortfolioSection
@@ -454,7 +468,7 @@ components:
       - name: props
         type: object
         fields:
-          - name: cards
+          - name: items
             type: object
             list: true
             fields:
@@ -517,7 +531,7 @@ components:
         fields:
           - { name: title, type: string, required: false }
           - { name: subtitle, type: string, required: false }
-          - { name: bgImage, type: image, required: false }
+          - { name: image, type: image, required: false }
 
 content:
   - name: pages
@@ -612,7 +626,10 @@ content:
         required: false
         fields:
           - { name: facebook, type: string, required: false }
+          - { name: instagram, type: string, required: false }
+          - { name: linkedin, type: string, required: false }
           - { name: twitter, type: string, required: false }
+          - { name: youtube, type: string, required: false }
       - name: seo
         type: object
         fields:
@@ -623,4 +640,112 @@ content:
           - { name: siteUrl, type: string }
           - { name: ogImage, type: image, required: false }
           - { name: twitterHandle, type: string, required: false }
+      - name: template
+        type: object
+        required: false
+        fields:
+          - { name: id, type: string, required: false }
+          - { name: name, type: string, required: false }
       # extend per-template if its site.json has extra keys not listed here
+
+  # Global singletons — common in dealer templates but NOT automatically wired to their
+  # components just because a JSON file + this schema exist. Before assuming these are
+  # "done" for a template, verify: (1) the JSON shape below matches that template's actual
+  # data file, and (2) the component that renders it (Navbar/Footer/PopupModal or
+  # equivalent) actually imports and uses that data instead of hardcoding it — see
+  # CHECKLIST.md "Global singletons" section. Delete whichever of these three a given
+  # template doesn't have.
+  - name: navbar
+    label: Navbar
+    type: file
+    path: src/data/globals/navbar.json
+    fields:
+      - name: logo
+        type: object
+        fields:
+          - { name: src, type: image }
+          - { name: alt, type: string, required: false }
+      - name: topNav
+        type: object
+        list: true
+        fields:
+          - { name: title, type: string }
+          - { name: href, type: string }
+          - name: children
+            type: object
+            list: true
+            required: false
+            fields:
+              - { name: title, type: string }
+              - { name: href, type: string }
+      - name: quickActions
+        type: object
+        list: true
+        required: false
+        fields:
+          - { name: title, type: string }
+          - { name: href, type: string }
+          - { name: icon, type: string, required: false }
+      - name: mainNav
+        type: object
+        list: true
+        fields:
+          - { name: title, type: string }
+          - { name: href, type: string }
+          - name: categories
+            type: object
+            list: true
+            fields:
+              - { name: title, type: string }
+              - { name: icon, type: string, required: false }
+              - { name: href, type: string, required: false }
+              - name: items
+                type: object
+                list: true
+                fields:
+                  - { name: title, type: string }
+                  - { name: href, type: string }
+
+  - name: footer
+    label: Footer
+    type: file
+    path: src/data/globals/footer.json
+    fields:
+      - { name: aboutText, type: text }
+      - name: quickLinks
+        type: object
+        list: true
+        fields:
+          - { name: title, type: string }
+          - { name: href, type: string }
+      - name: servicesOffer
+        type: object
+        list: true
+        fields:
+          - { name: title, type: string }
+          - { name: href, type: string }
+
+  - name: popup-modal
+    label: Popup Modal
+    type: file
+    path: src/data/globals/popup-modal.json
+    fields:
+      - { name: delay, type: number, required: false }
+      - { name: showOnce, type: boolean, required: false }
+      - { name: image, type: image, required: false }
+      - { name: imageAlt, type: string, required: false }
+      - { name: badgeText, type: string, required: false }
+      - { name: discountText, type: string, required: false }
+      - { name: discountSubtext, type: string, required: false }
+      - { name: title, type: string, required: false }
+      - { name: description, type: text, required: false }
+      - name: stats
+        type: object
+        list: true
+        required: false
+        fields:
+          - { name: value, type: string }
+          - { name: label, type: string }
+      - { name: ctaText, type: string, required: false }
+      - { name: ctaHref, type: string, required: false }
+      - { name: callLabel, type: string, required: false }
