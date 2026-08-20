@@ -119,6 +119,19 @@ easy to skip past.
       slug) or uses an independent `slug` field. Path-based routing means a folder move changes
       the live URL — confirm with whoever owns SEO/backlinks before doing it, and update every
       hardcoded link to the old URL (nav config, inline body links) to match.
+      **Worked example (plumbing-template-1):** 16 flat root pages were cluttering the sidebar.
+      7 low-SEO-risk ones (about/careers/contact/reviews/financing/specials-and-offers/
+      maintenance-plan) were grouped into `company/` and `promotions/` folders, matching the
+      convention the template already used for `commercial/`, `maintenance/`, `residential/`,
+      `specialty/` (a landing `.json` sibling to a same-named folder). 3 SEO-sensitive city
+      location pages were deliberately left flat since the client had already declined moving
+      those once. Every internal href to a moved page (`navbar.json`, `footer.json`, in-page CTA
+      links across ~90 content files, and hardcoded component-default `buttonHref` fallbacks like
+      `buttonHref = "/contact"` in section components) had to be updated to the new path — grep
+      for the old href as a quoted string across `src/content/**` and `src/components/**`, don't
+      assume only the nav files reference it. A same-named `redirects:` entry was added to
+      `astro.config.mjs` for every moved URL (works in static output via a meta-refresh page) so
+      any old bookmark/backlink/search-index entry still resolves instead of 404ing.
 
 ## 8. Don't trust unverified keys already in a `.pages.yml` — including this starter's
 A key can sit in a working-looking config for a long time without anyone noticing it does
