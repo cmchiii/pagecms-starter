@@ -4,8 +4,14 @@
 #   src/content/pages/**/*.json → { meta: {...}, sections: [{ component, props }], noindex, draft }
 #
 # Verified against pages-cms/pages-cms source (types/field.ts, lib/config-schema.ts) — not guessed.
+# `components:` below is verified field-for-field against plumbing-template-1's actual
+# src/components/sections/*.astro Props interfaces (and DynamicSection.astro for the one
+# React island, ServicesSection). Re-verify against the target template's own components
+# before assuming a block is correct for it — component sets vary between templates.
+#
 # Copy this file to the target template repo root as `.pages.yml`, then:
-#   1. Add every section component the template actually uses to `components:` below.
+#   1. Confirm every section component the template actually uses has a matching block below;
+#      add any that are missing (see README.md for the workflow).
 #   2. Point `content[0].path` at that repo's `src/content/pages` (should already match).
 #   3. Run through CHECKLIST.md before wiring up the GitHub App.
 
@@ -24,27 +30,494 @@ components:
       - name: props
         type: object
         fields:
-          - { name: buttonText, type: string }
-          - { name: buttonHref, type: string }
+          - { name: badge, type: string, required: false }
+          - { name: title, type: string }
+          - { name: subtitle, type: text, required: false }
+          - { name: buttonText, type: string, required: false }
+          - { name: buttonHref, type: string, required: false }
+          - { name: image, type: image, required: false }
+          - name: variant
+            type: select
+            required: false
+            options:
+              values: [default, subpage, category]
+          - { name: trustIndicators, type: string, list: true, required: false }
           - name: slides
             type: object
             list: true
+            required: false
             fields:
               - { name: title, type: string }
-              - { name: subtitle, type: text }
+              - { name: subtitle, type: text, required: false }
               - { name: image, type: image }
               - { name: promoTitle, type: string, required: false }
               - { name: promoText, type: string, required: false }
               - { name: promoImage, type: image, required: false }
+              - { name: buttonText, type: string, required: false }
 
-  # - name: CTAStrip
-  #   label: CTA Strip
-  #   fields:
-  #     - name: props
-  #       type: object
-  #       fields: []   # fill in from CTAStrip.astro's Props type
+  - name: CTAStrip
+    label: CTA Strip
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: buttonText, type: string, required: false }
+          - { name: buttonHref, type: string, required: false }
+          - { name: phoneLabel, type: string, required: false }
+          - { name: phone, type: string, required: false }
+          - { name: borderColor, type: string, required: false }
+          - name: features
+            type: object
+            list: true
+            required: false
+            fields:
+              - name: icon
+                type: select
+                options:
+                  values: [siren, award, phone, clock, shield, wrench]
+              - { name: text, type: string }
 
-  # ... one block per component in src/components/sections/ ...
+  - name: ContactFormSection
+    label: Contact Form Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: title, type: string, required: false }
+          - { name: description, type: text, required: false }
+          - { name: image, type: image, required: false }
+          - { name: phone, type: string, required: false }
+          - { name: email, type: string, required: false }
+          - { name: address, type: string, required: false }
+          - { name: serviceOptions, type: string, list: true, required: false }
+          - { name: planOptions, type: string, list: true, required: false }
+
+  - name: ContentSection
+    label: Content Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: badge, type: string, required: false }
+          - { name: title, type: string }
+          - { name: description, type: text }
+          - { name: features, type: string, list: true, required: false }
+          - { name: buttonText, type: string, required: false }
+          - { name: buttonHref, type: string, required: false }
+          - name: imagePosition
+            type: select
+            required: false
+            options:
+              values: [left, right]
+          - { name: images, type: image, list: true, required: false }
+          - { name: imageAlts, type: string, list: true, required: false }
+
+  - name: ContentSectionAlt
+    label: Content Section (Alt)
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: badge, type: string, required: false }
+          - { name: title, type: string }
+          - { name: titleHighlight, type: string, required: false }
+          - { name: description, type: text }
+          - { name: featuresTitle, type: string, required: false }
+          - { name: buttonText, type: string, required: false }
+          - { name: buttonHref, type: string, required: false }
+          - name: imagePosition
+            type: select
+            required: false
+            options:
+              values: [left, right]
+          - { name: image, type: image, required: false }
+          - { name: imageAlt, type: string, required: false }
+          - name: features
+            type: object
+            list: true
+            required: false
+            fields:
+              - { name: icon, type: string, required: false }
+              - { name: title, type: string }
+              - { name: description, type: text }
+
+  - name: CouponsSection
+    label: Coupons Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - name: variant
+            type: select
+            required: false
+            options:
+              values: [default, minimal]
+          - name: coupons
+            type: object
+            list: true
+            fields:
+              - { name: label, type: string }
+              - { name: discount, type: string }
+              - { name: description, type: text }
+              - { name: expires, type: string }
+
+  - name: TrustBadges
+    label: Trust Badges
+    fields:
+      - name: props
+        type: object
+        fields:
+          - name: badges
+            type: object
+            list: true
+            required: false
+            fields:
+              - { name: name, type: string }
+              - { name: image, type: image }
+              - { name: alt, type: string, required: false }
+              - { name: small, type: boolean, required: false }
+
+  - name: ServicesSection
+    label: Services Section (tabbed, React island)
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: title, type: string }
+          - { name: description, type: text }
+          - name: categories
+            type: object
+            list: true
+            fields:
+              - { name: title, type: string }
+              - name: services
+                type: object
+                list: true
+                fields:
+                  - { name: title, type: string }
+                  - { name: description, type: text }
+                  - { name: href, type: string, required: false }
+                  - { name: icon, type: string, required: false }
+
+  - name: ServiceCardsGridSection
+    label: Service Cards Grid Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: title, type: string }
+          - { name: description, type: text, required: false }
+          - name: services
+            type: object
+            list: true
+            fields:
+              - { name: image, type: image }
+              - name: icon
+                type: select
+                options:
+                  values: [kitchen, bathroom, leak, waterheater, drain, pipe]
+              - { name: title, type: string }
+              - { name: href, type: string, required: false }
+
+  - name: ExpertServicesSection
+    label: Expert Services Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: title, type: string }
+          - { name: highlightedText, type: string, required: false }
+          - { name: description, type: text }
+          - { name: image, type: image }
+          - { name: imageAlt, type: string, required: false }
+          - name: features
+            type: object
+            list: true
+            fields:
+              - name: icon
+                type: select
+                options:
+                  values: [wrench, users, dollar, settings, heart, shield, zap]
+              - { name: title, type: string }
+              - { name: description, type: text }
+
+  - name: PromoTilesSection
+    label: Promo Tiles Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - name: tiles
+            type: object
+            list: true
+            fields:
+              - name: type
+                type: select
+                options:
+                  values: [maintenance, financing, emergency]
+              - { name: tag, type: string, required: false }
+              - { name: title, type: string, required: false }
+              - { name: priceLabel, type: string, list: true, required: false }
+              - { name: headline, type: string, list: true, required: false }
+              - { name: subtext, type: string, required: false }
+              - { name: discount, type: string, required: false }
+              - { name: subheadline, type: string, list: true, required: false }
+              - { name: phone, type: string, required: false }
+              - { name: buttonText, type: string }
+              - { name: buttonHref, type: string, required: false }
+              - { name: bgImage, type: image, required: false }
+
+  - name: TestimonialsSection
+    label: Testimonials Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: badge, type: string, required: false }
+          - { name: title, type: string }
+          - { name: description, type: text, required: false }
+          - name: testimonials
+            type: object
+            list: true
+            fields:
+              - { name: name, type: string }
+              - { name: initials, type: string }
+              - { name: date, type: string }
+              - { name: rating, type: number }
+              - { name: content, type: text }
+
+  - name: ReviewsSection
+    label: Reviews Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: badge, type: string, required: false }
+          - { name: title, type: string }
+          - { name: description, type: text, required: false }
+          - { name: verifiedBy, type: string, required: false }
+          - name: reviews
+            type: object
+            list: true
+            fields:
+              - { name: name, type: string }
+              - { name: time, type: string }
+              - { name: content, type: text }
+              - { name: readMoreHref, type: string, required: false }
+
+  - name: FAQSection
+    label: FAQ Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: title, type: string }
+          - name: faqs
+            type: object
+            list: true
+            fields:
+              - { name: question, type: string }
+              - { name: answer, type: text, required: false }
+
+  - name: ServiceAreaSection
+    label: Service Area Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: title, type: string }
+          - { name: description, type: text }
+          - { name: areas, type: string, list: true, required: false }
+          - { name: mapImage, type: image, required: false }
+          - { name: mapEmbed, type: string, required: false }
+          - { name: mapAddress, type: string, required: false }
+          - name: variant
+            type: select
+            required: false
+            options:
+              values: [full, compact]
+          - { name: buttonText, type: string, required: false }
+          - { name: buttonHref, type: string, required: false }
+
+  - name: FinancingSection
+    label: Financing Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: badge, type: string, required: false }
+          - { name: title, type: string }
+          - { name: description, type: text }
+          - { name: paymentPlans, type: string, list: true }
+          - { name: financingOptions, type: string, list: true }
+          - name: steps
+            type: object
+            list: true
+            fields:
+              - { name: title, type: string }
+              - { name: description, type: text }
+
+  - name: FinancingIntroSection
+    label: Financing Intro Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: title, type: string }
+          - { name: description, type: text }
+          - { name: subtitle, type: string, required: false }
+          - { name: benefits, type: string, list: true, required: false }
+
+  - name: FinancingPlansSection
+    label: Financing Plans Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: badge, type: string, required: false }
+          - { name: title, type: string }
+          - { name: subtitle, type: text, required: false }
+          - name: variant
+            type: select
+            required: false
+            options:
+              values: [plans, services, features]
+          - name: items
+            type: object
+            list: true
+            fields:
+              - { name: title, type: string }
+              - { name: text, type: text, required: false }
+              - { name: href, type: string, required: false }
+              - name: icon
+                type: select
+                required: false
+                options:
+                  values: [percent, zero, calendar, check, home, building, wrench, settings, map, clock]
+              - { name: image, type: image, required: false }
+
+  - name: PricingPlansSection
+    label: Pricing Plans Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: title, type: string }
+          - { name: description, type: text }
+          - name: plans
+            type: object
+            list: true
+            fields:
+              - { name: ribbon, type: string }
+              - name: ribbonColor
+                type: select
+                required: false
+                options:
+                  values: [great, better, best]
+              - { name: title, type: string }
+              - { name: price, type: string }
+              - { name: period, type: string, required: false }
+              - { name: features, type: string, list: true }
+
+  - name: MaintenancePlanSection
+    label: Maintenance Plan Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: title, type: string }
+          - { name: description, type: text }
+          - { name: buttonText, type: string, required: false }
+          - { name: buttonHref, type: string, required: false }
+          - name: includedItems
+            type: object
+            list: true
+            fields:
+              - { name: title, type: string }
+              - { name: description, type: text }
+          - { name: benefits, type: string, list: true }
+
+  - name: PortfolioSection
+    label: Portfolio Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: badge, type: string, required: false }
+          - { name: title, type: string }
+          - { name: images, type: image, list: true, required: false }
+          - { name: columns, type: number, required: false }
+
+  - name: ImageCardsSection
+    label: Image Cards Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - name: cards
+            type: object
+            list: true
+            fields:
+              - { name: image, type: image }
+              - { name: title, type: string, required: false }
+              - { name: description, type: text, required: false }
+
+  - name: CareersCTASection
+    label: Careers CTA Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: title, type: string }
+          - { name: description, type: text, required: false }
+          - { name: buttonText, type: string, required: false }
+          - { name: buttonHref, type: string, required: false }
+          - { name: image, type: image, required: false }
+          - { name: imageAlt, type: string, required: false }
+
+  - name: JobOpeningsSection
+    label: Job Openings Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: badge, type: string, required: false }
+          - { name: title, type: string }
+          - { name: description, type: text, required: false }
+          - { name: introTitle, type: string, required: false }
+          - { name: introDescription, type: text, required: false }
+          - name: jobs
+            type: object
+            list: true
+            fields:
+              - { name: title, type: string }
+              - { name: type, type: string, required: false }
+              - { name: responsibilities, type: text }
+              - { name: buttonText, type: string, required: false }
+              - { name: buttonHref, type: string, required: false }
+
+  - name: SignupBannerSection
+    label: Signup Banner Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: title, type: string }
+          - { name: description, type: text }
+          - { name: calloutText, type: text }
+          - { name: phone, type: string, required: false }
+          - { name: buttonText, type: string, required: false }
+          - { name: buttonHref, type: string, required: false }
+
+  - name: PlaceholderContentSection
+    label: Placeholder Content Section
+    fields:
+      - name: props
+        type: object
+        fields:
+          - { name: title, type: string, required: false }
+          - { name: subtitle, type: string, required: false }
+          - { name: bgImage, type: image, required: false }
 
 content:
   - name: pages
@@ -67,8 +540,31 @@ content:
         list: true
         blocks:
           - { component: HeroSection }
-          # - { component: CTAStrip }
-          # ... one line per entry in `components:` above ...
+          - { component: CTAStrip }
+          - { component: ContactFormSection }
+          - { component: ContentSection }
+          - { component: ContentSectionAlt }
+          - { component: CouponsSection }
+          - { component: TrustBadges }
+          - { component: ServicesSection }
+          - { component: ServiceCardsGridSection }
+          - { component: ExpertServicesSection }
+          - { component: PromoTilesSection }
+          - { component: TestimonialsSection }
+          - { component: ReviewsSection }
+          - { component: FAQSection }
+          - { component: ServiceAreaSection }
+          - { component: FinancingSection }
+          - { component: FinancingIntroSection }
+          - { component: FinancingPlansSection }
+          - { component: PricingPlansSection }
+          - { component: MaintenancePlanSection }
+          - { component: PortfolioSection }
+          - { component: ImageCardsSection }
+          - { component: CareersCTASection }
+          - { component: JobOpeningsSection }
+          - { component: SignupBannerSection }
+          - { component: PlaceholderContentSection }
       - { name: noindex, type: boolean, default: false }
       - { name: draft, type: boolean, default: false }
 
@@ -82,14 +578,49 @@ content:
         fields:
           - { name: name, type: string }
           - { name: fullName, type: string }
+          - { name: tagline, type: string, required: false }
+          - { name: description, type: text, required: false }
       - name: location
         type: object
         fields:
           - { name: city, type: string }
           - { name: state, type: string }
+          - { name: address, type: string, required: false }
+          - { name: fullAddress, type: string, required: false }
       - name: contact
         type: object
         fields:
+          - { name: email, type: string, required: false }
+          - { name: phone, type: string }
           - { name: phoneFormatted, type: string }
-          - { name: phoneRaw, type: string, required: false }
-      # extend to match this template's actual site.json shape (Phase 1 audit)
+      - name: colors
+        type: object
+        fields:
+          - { name: primary, type: string }
+          - { name: secondary, type: string }
+          - { name: tertiary, type: string }
+          - { name: quaternary, type: string }
+          - { name: accent, type: string }
+          - { name: highlight, type: string, required: false }
+      - name: logo
+        type: object
+        fields:
+          - { name: src, type: image }
+          - { name: alt, type: string }
+      - name: social
+        type: object
+        required: false
+        fields:
+          - { name: facebook, type: string, required: false }
+          - { name: twitter, type: string, required: false }
+      - name: seo
+        type: object
+        fields:
+          - { name: siteName, type: string }
+          - { name: defaultTitle, type: string, required: false }
+          - { name: defaultDescription, type: text }
+          - { name: keywords, type: text, required: false }
+          - { name: siteUrl, type: string }
+          - { name: ogImage, type: image, required: false }
+          - { name: twitterHandle, type: string, required: false }
+      # extend per-template if its site.json has extra keys not listed here
