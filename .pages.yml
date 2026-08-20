@@ -538,23 +538,8 @@ content:
     label: Pages
     type: collection
     path: src/content/pages
-    format: json
-    subfolders: true
-    filename: "{primary}.json"
     view:
-      primary: meta.title
-      fields:
-        - meta.title
-        - meta.description
-      sort:
-        - meta.title
-      default:
-        sort: meta.title
-        order: asc
       layout: tree
-      node:
-        filename: index.json
-        hideDirs: nodes
     fields:
       - name: meta
         type: object
@@ -563,10 +548,6 @@ content:
           - { name: description, type: text }
           - { name: keywords, type: string, required: false }
           - { name: ogImage, type: image, required: false }
-          - name: isLocationPage
-            type: boolean
-            required: false
-            description: "Flag this page as a city/service-area page — makes it show up in the Location Pages quick-find list"
       - name: sections
         type: block
         blockKey: component
@@ -600,27 +581,6 @@ content:
           - { component: PlaceholderContentSection }
       - { name: noindex, type: boolean, default: false }
       - { name: draft, type: boolean, default: false }
-
-  # Filtered "quick find" view into the same `pages` collection (same `path`, merged via
-  # `settings.content.merge: true` below) — surfaces just the city/service-area pages so a
-  # client doesn't have to hunt through the full folder tree for them. Requires each location
-  # page to have `meta.isLocationPage: true` set (toggle it via the `pages` collection's
-  # "Location Page" field) — an unset flag means zero results here, not an error, so check this
-  # is actually populated for a template's real location pages before calling it done.
-  - name: location-pages
-    label: Location Pages
-    type: collection
-    path: src/content/pages
-    format: json
-    icon: pin
-    filename: "{primary}.json"
-    view:
-      primary: meta.title
-      fields:
-        - meta.title
-      filter:
-        field: meta.isLocationPage
-        value: true
 
   - name: site-settings
     label: Site Settings
@@ -789,9 +749,3 @@ content:
       - { name: ctaText, type: string, required: false }
       - { name: ctaHref, type: string, required: false }
       - { name: callLabel, type: string, required: false }
-
-# Required for `location-pages` to work as a filtered view into `pages` rather than a
-# separate, empty collection — both share `path: src/content/pages`.
-settings:
-  content:
-    merge: true

@@ -4,7 +4,7 @@ Reusable [Pages CMS](https://pagescms.org) config for the dealer-template repos.
 
 ## What's here
 
-- **`.pages.yml`** — base config matching the Astro content-collection shape (`meta` + polymorphic `sections` block list + `noindex`/`draft`), plus `site.json` settings and the three common global singletons (`navbar.json`, `footer.json`, `popup-modal.json`). The `pages` collection ships with folder-tree grouping (`subfolders: true` + `view.layout: tree`) and a `location-pages` quick-find view filtered on a `meta.isLocationPage` flag, so a client can find one of dozens of nested pages without scrolling a flat list — see CHECKLIST.md §7 before assuming either is actually working for a given template. See its header comments for what to fill in per-template.
+- **`.pages.yml`** — base config matching the Astro content-collection shape (`meta` + polymorphic `sections` block list + `noindex`/`draft`), plus `site.json` settings and the three common global singletons (`navbar.json`, `footer.json`, `popup-modal.json`). See its header comments for what to fill in per-template.
 - **`CHECKLIST.md`** — refactor checklist to run against a template *before* wiring the CMS to it: confirm the CMS is actually pointed at the data the site reads (the most common and most silent failure mode), kill dead/duplicate data, remove hardcoded copy that should be editable, wire up global singletons, avoid the fs-loader build-breakage pattern, and keep component props and CMS schema in sync.
 - **`scripts/apply.ps1`** — copies `.pages.yml` into a target template repo (does not overwrite an existing one without confirmation).
 - **`PROMPT.md`** — copy-paste prompts for telling Claude to apply this starter to a template once both repos are open in the same workspace.
