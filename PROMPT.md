@@ -19,35 +19,34 @@ pausing for plan approval, then reports what it did:
 
 > Find the dealer-template repo in this workspace (not `pagecms-starter` itself — the other
 > folder with `astro.config.mjs` and `src/content.config.ts`; ask me if there's more than
-> one match). Apply the Pages CMS starter to it:
+> one match). Apply the Pages CMS starter to it, fully:
 > 1. Run through `pagecms-starter/CHECKLIST.md` against it — find and remove dead/duplicate
 >    content data, find hardcoded copy in its section components/layouts that should be
 >    dynamic, and check prop-to-schema parity.
-> 2. Copy `pagecms-starter/.pages.yml` into its repo root as `.pages.yml`.
-> 3. Fill in the `components:` list and the `sections` block list in that file from its
->    actual `src/components/sections/*.astro` files and their real prop shapes — don't
->    guess, read each component.
-> 4. Update the `site-settings` fields to match its actual `site.json`.
-> 5. Tell me what you changed and what's still manual (e.g. installing the Pages CMS GitHub
->    App, which I'll do myself).
+> 2. List every component in its `src/components/sections/*.astro` (or equivalent) and read
+>    each one's actual prop shape — don't guess.
+> 3. For every one of those components, add or update a matching block in
+>    `pagecms-starter/.pages.yml`'s `components:` list so the starter covers all of them, not
+>    just the worked example already there. This also updates the shared starter, so the
+>    next template benefits.
+> 4. Copy the now-complete `pagecms-starter/.pages.yml` into the target repo's root as
+>    `.pages.yml`, with every one of its components wired into the `sections` block list.
+> 5. Update the `site-settings` fields to match its actual `site.json`.
+> 6. Tell me what you changed in both repos and what's still manual (e.g. installing the
+>    Pages CMS GitHub App, which I'll do myself).
 >
 > Give me a plan first before executing.
 
 ## Re-run after `CHECKLIST.md` already passed once
 
-> Apply `pagecms-starter/.pages.yml` to the dealer-template repo in this workspace and fill
-> in `components:` / `sections` from its actual section components. Skip the checklist, I
-> already ran it.
+Same as "First run" minus the checklist step — still reads every section component and adds
+any block the starter is missing, so it's safe to use even when the target has components
+the starter hasn't seen before:
 
-## Feeding a new pattern back into the starter
-
-If a template introduces a section/field shape the starter doesn't cover yet (per
-`README.md` step 6):
-
-> The dealer-template repo in this workspace has a section component with a prop shape
-> `pagecms-starter/.pages.yml` doesn't cover. Find it, add a matching block to
-> `pagecms-starter/.pages.yml`'s `components:` list so future templates get it for free,
-> then apply it to that repo too.
+> Apply `pagecms-starter/.pages.yml` to the dealer-template repo in this workspace: for every
+> component in its `src/components/sections/*.astro`, add or update a matching block in
+> `pagecms-starter/.pages.yml`'s `components:` list, then apply the complete config to that
+> repo's `.pages.yml`. Skip the checklist, I already ran it.
 
 ## Notes for whichever prompt you use
 - Don't ask Claude to push `pagecms-starter` changes or install the GitHub App — those are
