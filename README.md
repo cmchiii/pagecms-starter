@@ -7,6 +7,7 @@ Reusable [Pages CMS](https://pagescms.org) config for the dealer-template repos.
 - **`.pages.yml`** — base config matching the Astro content-collection shape (`meta` + polymorphic `sections` block list + `noindex`/`draft`, plus `site.json` settings). See its header comments for what to fill in per-template.
 - **`CHECKLIST.md`** — refactor checklist to run against a template *before* wiring the CMS to it: kill dead/duplicate data, remove hardcoded copy that should be editable, keep component props and CMS schema in sync.
 - **`scripts/apply.ps1`** — copies `.pages.yml` into a target template repo (does not overwrite an existing one without confirmation).
+- **`PROMPT.md`** — copy-paste prompts for telling Claude to apply this starter to a template once both repos are open in the same workspace.
 
 ## Using it on a new template
 
