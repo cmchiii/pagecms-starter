@@ -111,27 +111,28 @@ easy to skip past.
       `filter` key silently invalidated the *entire* `view:` block for that collection, which is
       why it fell back to an unstyled flat list of every file with raw filenames as labels — the
       exact "why does this look broken" symptom this section exists to prevent, caused by this
-      starter itself. If a template genuinely needs a curated subset view, the only real option is
-      physically nesting those files under their own subfolder so the tree groups them — which
-      means their URLs change too if routing is path-based (see the next bullet).
-- [ ] Before moving any page into a new subfolder for grouping, check whether the site's routing
-      is path-based (the file's path *is* the URL, e.g. Astro's `getCollection` + `page.id` as the
-      slug) or uses an independent `slug` field. Path-based routing means a folder move changes
-      the live URL — confirm with whoever owns SEO/backlinks before doing it, and update every
-      hardcoded link to the old URL (nav config, inline body links) to match.
-      **Worked example (plumbing-template-1):** 16 flat root pages were cluttering the sidebar.
-      7 low-SEO-risk ones (about/careers/contact/reviews/financing/specials-and-offers/
-      maintenance-plan) were grouped into `company/` and `promotions/` folders, matching the
-      convention the template already used for `commercial/`, `maintenance/`, `residential/`,
-      `specialty/` (a landing `.json` sibling to a same-named folder). 3 SEO-sensitive city
-      location pages were deliberately left flat since the client had already declined moving
-      those once. Every internal href to a moved page (`navbar.json`, `footer.json`, in-page CTA
-      links across ~90 content files, and hardcoded component-default `buttonHref` fallbacks like
-      `buttonHref = "/contact"` in section components) had to be updated to the new path — grep
-      for the old href as a quoted string across `src/content/**` and `src/components/**`, don't
-      assume only the nav files reference it. A same-named `redirects:` entry was added to
-      `astro.config.mjs` for every moved URL (works in static output via a meta-refresh page) so
-      any old bookmark/backlink/search-index entry still resolves instead of 404ing.
+      starter itself.
+- [ ] **Only group pages into a subfolder when the folder mirrors a real dropdown/mega-menu in
+      the nav** — e.g. `commercial/`, `residential/`, `maintenance/`, `specialty/` each back an
+      actual `mainNav` category with real child items (a landing `.json` sibling to a same-named
+      folder with genuine nested content). Don't invent a folder just to tidy the CMS sidebar for
+      pages that are flat `topNav`/`quickActions` links with no dropdown children (e.g. About,
+      Contact, Careers, Reviews, Financing) — that trades a real URL for a cosmetic grouping.
+      **Worked example (plumbing-template-1):** about/careers/contact/reviews/financing/
+      specials-and-offers/maintenance-plan were briefly grouped into invented `company/` and
+      `promotions/` folders to match the sidebar look of the real dropdown folders, then reverted
+      once it was clear none of those 7 pages are dropdown children — they're flat nav links, so
+      the folders added URL churn (every href across `navbar.json`, `footer.json`, ~90 content
+      files, hardcoded `buttonHref` fallbacks, plus `astro.config.mjs` redirects) for no real
+      navigational benefit. Left flat at the collection root instead.
+- [ ] If a folder move is genuinely warranted (it mirrors a real nav dropdown), check whether the
+      site's routing is path-based (the file's path *is* the URL, e.g. Astro's `getCollection` +
+      `page.id` as the slug) or uses an independent `slug` field. Path-based routing means the
+      move changes the live URL — confirm with whoever owns SEO/backlinks before doing it, update
+      every hardcoded link to the old URL (nav config, inline body links — grep for the old href
+      as a quoted string across `src/content/**` and `src/components/**`, don't assume only the
+      nav files reference it), and add a matching `redirects:` entry in `astro.config.mjs` for
+      each moved URL so old bookmarks/backlinks/search-index entries still resolve.
 
 ## 8. Don't trust unverified keys already in a `.pages.yml` — including this starter's
 A key can sit in a working-looking config for a long time without anyone noticing it does
